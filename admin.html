@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login - Mehndi Artistry</title>
+    <link rel="stylesheet" href="admin.css" />
+    <script src="admin.js" defer></script>
+  </head>
+  <body>
+    <div class="noise"></div>
+    <div class="login-container">
+      <div class="login-card">
+        <div class="login-header">
+          <div class="admin-icon">🔐</div>
+          <h1>Admin Login</h1>
+          <p>Access your admin dashboard</p>
+        </div>
+        <form class="login-form" id="loginForm">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              placeholder="Enter your username"
+              required
+              autocomplete="username"
+            />
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+              required
+              autocomplete="current-password"
+            />
+          </div>
+          <button type="submit" class="login-btn" id="loginBtn">
+            <span class="btn-text">Login</span>
+            <span class="btn-loader" style="display: none;">
+              <span class="spinner"></span>
+              Logging in...
+            </span>
+          </button>
+          <div class="error-message" id="errorMessage"></div>
+        </form>
+        <div class="login-footer">
+          <p>Default credentials: admin / admin123</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+
+
+

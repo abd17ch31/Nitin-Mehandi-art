@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book Appointment · Mehndi Artistry</title>
+    <meta name="description" content="Secure your mehndi date in minutes. Share event details and we’ll confirm availability and home service across Delhi NCR." />
+    <meta property="og:title" content="Book Appointment" />
+    <meta property="og:description" content="Quick booking for bridal and festive mehndi. Home service available." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Book Appointment" />
+    <meta name="twitter:description" content="Confirm your date and requirements in minutes." />
+    <link rel="stylesheet" href="booking.css" />
+    <script src="booking.js" defer></script>
+  </head>
+  <body>
+    <div class="noise"></div>
+    <header class="header">
+      <h1>Book Your Appointment</h1>
+      <p>Fill in your details and we'll get back to you soon</p>
+    </header>
+    <main class="booking-container">
+      <form class="booking-form" id="bookingForm" novalidate>
+        <div class="form-fields-grid">
+          <div class="form-group">
+            <label for="name">Full Name <span class="required">*</span></label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="Enter your full name"
+              required
+              autocomplete="name"
+            />
+            <span class="error-message" id="nameError"></span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="city">City <span class="required">*</span></label>
+              <input
+                type="text"
+                id="city"
+                name="city"
+                placeholder="Enter your city"
+                required
+                autocomplete="address-level2"
+              />
+              <span class="error-message" id="cityError"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="state">State <span class="required">*</span></label>
+              <input
+                type="text"
+                id="state"
+                name="state"
+                placeholder="Enter your state"
+                required
+                autocomplete="address-level1"
+              />
+              <span class="error-message" id="stateError"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="functionDate">Function Date <span class="required">*</span></label>
+            <input
+              type="date"
+              id="functionDate"
+              name="functionDate"
+              required
+              min=""
+            />
+            <span class="error-message" id="functionDateError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="mobile">Mobile Number <span class="required">*</span></label>
+            <input
+              type="tel"
+              id="mobile"
+              name="mobile"
+              placeholder="Enter your 10-digit mobile number"
+              required
+              pattern="[0-9]{10}"
+              maxlength="10"
+              autocomplete="tel"
+            />
+            <span class="error-message" id="mobileError"></span>
+          </div>
+
+          <div class="form-group form-group-full">
+            <label for="specialRequest">Any Special Request</label>
+            <textarea
+              id="specialRequest"
+              name="specialRequest"
+              rows="4"
+              placeholder="Tell us about any specific designs, preferences, or special requirements..."
+            ></textarea>
+          </div>
+        </div>
+
+        <a class="submit-btn disabled" id="submitBtn" aria-disabled="true">
+          <span class="btn-text">Submit Booking</span>
+        </a>
+      </form>
+
+      <div class="form-info">
+        <div class="info-icon">💬</div>
+        <h3>Need Help?</h3>
+        <p>If you have any questions or need assistance with your booking, feel free to reach out to us.</p>
+      </div>
+    </main>
+    <script src="image-replacer.js"></script>
+  </body>
+</html>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function(){
+          var form = document.getElementById('bookingForm');
+          var btn = document.getElementById('submitBtn');
+          function openDB(){
+            return new Promise(function(resolve,reject){
+              var req = indexedDB.open('BookingsDB',2);
+              req.onupgradeneeded = function(e){
+                var db = e.target.result;
+                if(!db.objectStoreNames.contains('bookings')){
+                  var store = db.createObjectStore('bookings',{ keyPath:'id' });
+                  store.createIndex('submittedAt','submittedAt',{ unique:false });
+                  store.createIndex('serviceType','serviceType',{ unique:false });
+                }
+              };
+              req.onsuccess = function(){ resolve(req.result); };
+              req.onerror = function(){ reject(req.error); };
+            });
+          }
+          function saveBooking(data){
+            return openDB().then(function(db){
+              return new Promise(function(resolve,reject){
+                var tx = db.transaction('bookings','readwrite');
+                var store = tx.objectStore('bookings');
+                store.add(data);
+                tx.oncomplete = function(){ db.close(); resolve(); };
+                tx.onerror = function(){ db.close(); reject(tx.error); };
+              });
+            });
+          }
+          function u(){
+            if(form.checkValidity()){
+              btn.classList.remove('disabled');
+              btn.setAttribute('aria-disabled','false');
+              btn.style.pointerEvents='auto';
+            } else {
+              btn.classList.add('disabled');
+              btn.setAttribute('aria-disabled','true');
+              btn.removeAttribute('href');
+              btn.style.pointerEvents='none';
+            }
+          }
+          u();
+          form.addEventListener('input', u);
+          form.addEventListener('change', u);
+
+          btn.addEventListener('click', function(e){
+            if(!form.checkValidity()) { e.preventDefault(); return; }
+            e.preventDefault();
+            var data = {
+              serviceType: 'General Booking',
+              name: document.getElementById('name').value.trim(),
+              city: document.getElementById('city').value.trim(),
+              state: document.getElementById('state').value.trim(),
+              functionDate: document.getElementById('functionDate').value,
+              mobile: document.getElementById('mobile').value,
+              specialRequest: document.getElementById('specialRequest').value.trim(),
+              submittedAt: new Date().toISOString(),
+              expiresAt: new Date(Date.now() + 30*24*60*60*1000).toISOString()
+            };
+            data.id = Date.now();
+            saveBooking(data).then(function(){
+              window.location.href = 'thank-you.html';
+            });
+          });
+        });
+      </script>

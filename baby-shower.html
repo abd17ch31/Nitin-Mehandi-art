@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Baby Shower Mehndi - Book Your Appointment</title>
+    <link rel="stylesheet" href="baby-shower.css" />
+    <script src="baby-shower.js" defer></script>
+  </head>
+  <body>
+    <div class="noise"></div>
+    <div class="hero-section">
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <h1>Baby Shower Mehndi</h1>
+        <p>Delicate designs for your baby celebration</p>
+      </div>
+    </div>
+    <main class="service-container">
+      <div class="form-wrapper">
+        <div class="form-header">
+          <div class="form-icon">👶</div>
+          <h2>Book Your Baby Shower Appointment</h2>
+          <p>Fill in your details to reserve your baby shower mehndi session</p>
+        </div>
+        <form class="service-form" id="babyShowerForm" novalidate>
+          <div class="form-group">
+            <label for="serviceType">Service Type <span class="required">*</span></label>
+            <div class="service-type-display">
+              <input
+                type="text"
+                id="serviceType"
+                name="serviceType"
+                value="Baby Shower"
+                readonly
+                class="service-input-readonly"
+              />
+              <span class="service-badge">Baby Shower</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="name">Full Name <span class="required">*</span></label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="Enter your full name"
+              required
+              autocomplete="name"
+            />
+            <span class="error-message" id="nameError"></span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="city">City <span class="required">*</span></label>
+              <input
+                type="text"
+                id="city"
+                name="city"
+                placeholder="Enter your city"
+                required
+                autocomplete="address-level2"
+              />
+              <span class="error-message" id="cityError"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="state">State <span class="required">*</span></label>
+              <input
+                type="text"
+                id="state"
+                name="state"
+                placeholder="Enter your state"
+                required
+                autocomplete="address-level1"
+              />
+              <span class="error-message" id="stateError"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="functionDate">Baby Shower Date <span class="required">*</span></label>
+            <input
+              type="date"
+              id="functionDate"
+              name="functionDate"
+              required
+              min=""
+            />
+            <span class="error-message" id="functionDateError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="mobile">Mobile Number <span class="required">*</span></label>
+            <input
+              type="tel"
+              id="mobile"
+              name="mobile"
+              placeholder="Enter your 10-digit mobile number"
+              required
+              pattern="[0-9]{10}"
+              maxlength="10"
+              autocomplete="tel"
+            />
+            <span class="error-message" id="mobileError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="specialRequest">Special Requests & Design Preferences</label>
+            <textarea
+              id="specialRequest"
+              name="specialRequest"
+              rows="4"
+              placeholder="Tell us about your preferred designs, motifs, or any special requirements for your baby shower mehndi..."
+            ></textarea>
+          </div>
+
+          <a class="submit-btn disabled" id="submitBtn" aria-disabled="true">
+            <span class="btn-text">Book Baby Shower Appointment</span>
+          </a>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>
+        <script>
+          document.addEventListener('DOMContentLoaded', function(){
+            var form = document.getElementById('babyShowerForm');
+            var btn = document.getElementById('submitBtn');
+            function openDB(){
+              return new Promise(function(resolve,reject){
+                var req = indexedDB.open('BookingsDB',2);
+                req.onupgradeneeded = function(e){
+                  var db = e.target.result;
+                  if(!db.objectStoreNames.contains('bookings')){
+                    var store = db.createObjectStore('bookings',{ keyPath:'id' });
+                    store.createIndex('submittedAt','submittedAt',{ unique:false });
+                    store.createIndex('serviceType','serviceType',{ unique:false });
+                  }
+                };
+                req.onsuccess = function(){ resolve(req.result); };
+                req.onerror = function(){ reject(req.error); };
+              });
+            }
+            function saveBooking(data){
+              return openDB().then(function(db){
+                return new Promise(function(resolve,reject){
+                  var tx = db.transaction('bookings','readwrite');
+                  var store = tx.objectStore('bookings');
+                  store.add(data);
+                  tx.oncomplete = function(){ db.close(); resolve(); };
+                  tx.onerror = function(){ db.close(); reject(tx.error); };
+                });
+              });
+            }
+            function u(){
+              if(form.checkValidity()){
+                btn.classList.remove('disabled');
+                btn.setAttribute('aria-disabled','false');
+                btn.style.pointerEvents='auto';
+              } else {
+                btn.classList.add('disabled');
+                btn.setAttribute('aria-disabled','true');
+                btn.removeAttribute('href');
+                btn.style.pointerEvents='none';
+              }
+            }
+            u();
+            form.addEventListener('input', u);
+            form.addEventListener('change', u);
+
+            btn.addEventListener('click', function(e){
+              if(!form.checkValidity()) { e.preventDefault(); return; }
+              e.preventDefault();
+              var data = {
+                serviceType: 'Baby Shower',
+                name: document.getElementById('name').value.trim(),
+                city: document.getElementById('city').value.trim(),
+                state: document.getElementById('state').value.trim(),
+                functionDate: document.getElementById('functionDate').value,
+                mobile: document.getElementById('mobile').value,
+                specialRequest: document.getElementById('specialRequest').value.trim(),
+                submittedAt: new Date().toISOString(),
+                expiresAt: new Date(Date.now() + 30*24*60*60*1000).toISOString()
+              };
+              data.id = Date.now();
+              saveBooking(data).then(function(){
+                window.location.href = 'thank-you.html';
+              });
+            });
+          });
+        </script>

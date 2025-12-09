@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Images Admin Panel</title>
+    <link rel="stylesheet" href="images-admin.css" />
+  </head>
+  <body>
+    <header class="header">
+      <h1>Images Admin</h1>
+      <button id="logoutBtn" class="btn outline">Logout</button>
+    </header>
+
+    <main class="container">
+      <section id="authSection" class="card">
+        <h2 id="authTitle">Admin Login</h2>
+        <form id="setupForm" class="form" style="display:none">
+          <div class="field">
+            <label>Set Password</label>
+            <input type="password" id="setupPassword" required />
+          </div>
+          <button type="submit" class="btn primary">Save Password</button>
+        </form>
+        <form id="loginForm" class="form" style="display:none">
+          <div class="field">
+            <label>Password</label>
+            <input type="password" id="loginPassword" required />
+          </div>
+          <button type="submit" class="btn primary">Login</button>
+        </form>
+      </section>
+
+      <section id="panelSection" class="card" style="display:none">
+        <div class="toolbar">
+          <input type="text" id="searchInput" class="input" placeholder="Search by page, image key, alt" />
+          <select id="pageFilter" class="input">
+            <option value="all">All Pages</option>
+          </select>
+          <button id="refreshBtn" class="btn">Refresh</button>
+        </div>
+
+        <form id="simpleForm" class="form">
+          <h3>Quick Replace</h3>
+          <div class="field">
+            <label>File (Page)</label>
+            <select id="simplePageSelect" class="input" required>
+              <option value="">Select a page...</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Upload Image</label>
+            <input type="file" id="simpleFile" accept="image/*" required />
+          </div>
+          <div class="field">
+            <label>Select Image (order)</label>
+            <select id="simpleImageIndex" class="input" required>
+              <option value="">Select a page first</option>
+            </select>
+          </div>
+          <button type="submit" class="btn primary">Submit</button>
+        </form>
+        <iframe id="pagePreviewFrame" style="display:none"></iframe>
+
+        
+
+        <div class="tableWrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="selectAll" /></th>
+                <th>Preview</th>
+                <th>Page</th>
+                <th>Image Key</th>
+                <th>Alt</th>
+                <th>Title</th>
+                <th>Original Src</th>
+                <th>Updated</th>
+                <th>Replace</th>
+                <th>Save</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tbody id="imagesTbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="images-admin.js"></script>
+  </body>
+</html>
